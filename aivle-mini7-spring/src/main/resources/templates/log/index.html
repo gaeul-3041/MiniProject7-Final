@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그</title>
+    <style>
+        .navbar {
+             background-color: #007bff;
+             color: white;
+             padding: 10px 20px;
+             display: flex;
+             justify-content: space-between;
+             align-items: center;
+             position: position;
+             top: 0;
+             z-index: 1000;
+             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+         }
+
+         .navbar a {
+             color: white;
+             text-decoration: none;
+             margin-left: 15px;
+             font-size: 16px;
+         }
+
+         .navbar a:hover {
+             text-decoration: underline;
+         }
+
+         .navbar .logo {
+             font-size: 20px;
+             font-weight: bold;
+         }
+
+         .navbar .menu {
+             display: flex;
+             gap: 15px;
+         }
+
+         body {
+             font-family: Arial, sans-serif;
+             background-color: #f4f4f4;
+             padding: 0px;
+             margin: 0;
+         }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .search-form {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .table-container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        table thead tr {
+            background-color: #007bff;
+            color: #ffffff;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        table th, table td {
+            padding: 12px 15px;
+            border: 1px solid #dddddd;
+        }
+
+        table tbody tr {
+            border-bottom: 1px solid #dddddd;
+        }
+
+        table tbody tr:nth-of-type(even) {
+            background-color: #f9f9f9;
+        }
+
+        table tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .pagination {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .pagination button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 5px;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 5px;
+        }
+
+        .pagination button:hover {
+            background-color: #0056b3;
+        }
+
+        .pagination span {
+            font-size: 14px;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+<!-- 네비게이션 바 -->
+<div th:replace="fragments/nav :: nav"></div>
+
+<h1>로그</h1>
+<div class="table-container">
+    <table>
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>입력 텍스트</th>
+            <th>날짜/시간</th>
+            <th>위도</th>
+            <th>경도</th>
+            <th>응급 유형</th>
+            <th>병원 1</th>
+            <th>주소 1</th>
+            <th>전화번호 1</th>
+            <th>소요 시간 1</th>
+            <th>예상 도착 시간 1</th>
+            <th>병원 2</th>
+            <th>주소 2</th>
+            <th>전화번호 2</th>
+            <th>소요 시간 2</th>
+            <th>예상 도착 시간 2</th>
+            <th>병원 3</th>
+            <th>주소 3</th>
+            <th>전화번호 3</th>
+            <th>소요 시간 3</th>
+            <th>예상 도착 시간 3</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- 데이터 반복 -->
+        <tr th:each="log, iterStat : ${logList.content}">
+            <td th:text="${iterStat.index + 1}"></td>
+            <td th:text="${log.inputText}"></td>
+            <td th:text="${log.datetime}"></td>
+            <td th:text="${log.inputLatitude}"></td>
+            <td th:text="${log.inputLongitude}"></td>
+            <td th:text="${log.emClass}"></td>
+            <td th:text="${log.hospital1}"></td>
+            <td th:text="${log.addr1}"></td>
+            <td th:text="${log.tel1}"></td>
+            <td th:text="${log.hospital1Duration}"></td>
+            <td th:text="${log.hospital1ArrivalTime}"></td>
+            <td th:text="${log.hospital2}"></td>
+            <td th:text="${log.addr2}"></td>
+            <td th:text="${log.tel2}"></td>
+            <td th:text="${log.hospital2Duration}"></td>
+            <td th:text="${log.hospital2ArrivalTime}"></td>
+            <td th:text="${log.hospital3}"></td>
+            <td th:text="${log.addr3}"></td>
+            <td th:text="${log.tel3}"></td>
+            <td th:text="${log.hospital3Duration}"></td>
+            <td th:text="${log.hospital3ArrivalTime}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- 페이지네이션 -->
+<div class="pagination">
+    <button th:if="${logList.hasPrevious()}"
+            th:href="@{/admin(page=${logList.number - 1})}">이전</button>
+    <span th:text="${logList.number + 1} + '/' + ${logList.totalPages}"></span>
+    <button th:if="${logList.hasNext()}"
+            th:href="@{/admin(page=${logList.number + 1})}">다음</button>
+</div>
+</body>
+</html>

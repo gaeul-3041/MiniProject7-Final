@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .login-container {
+            background-color: #fff;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-container h1 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            text-align: center;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .login-button:hover {
+            background-color: #0056b3;
+        }
+
+        .extra-links {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .extra-links a {
+            font-size: 14px;
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .extra-links a:hover {
+            text-decoration: underline;
+        }
+
+        .extra-links span {
+            margin: 0 10px; /* 링크 사이 간격 */
+            color: #666;    /* 구분자 색상 */
+        }
+    </style>
+</head>
+<body>
+<div class="login-container">
+    <h1>로그인</h1>
+
+    <!-- 오류 메시지 표시 -->
+    <div th:if="${error}" style="color:red; text-align:center;">
+        <p th:text="${error}"></p>
+    </div>
+
+    <form action="/login" method="post" th:action="@{/login}">
+        <div class="form-group">
+            <label for="id">아이디</label>
+            <input type="text" id="id" name="id" placeholder="아이디를 입력하세요" th:value="${id}" required>
+        </div>
+        <div class="form-group">
+            <label for="password">비밀번호</label>
+            <input type="password" id="password" name="pw" placeholder="비밀번호를 입력하세요" required>
+        </div>
+        <button type="submit" class="login-button">Login</button>
+    </form>
+    <div class="extra-links">
+        <a href="/recovpassword">비밀번호를 잊어버렸나요?</a>
+        <span> | </span>
+        <a href="/agree">회원가입</a>
+    </div>
+</div>
+</body>
+</html>

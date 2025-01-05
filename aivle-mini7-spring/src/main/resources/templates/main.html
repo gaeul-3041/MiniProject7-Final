@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>병원 추천 시스템</title>
+    <style>
+             .navbar {
+      background-color: #007bff;
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed; /* 화면 상단에 고정 */
+      top: 0;
+      left: 0;
+      width: 98%; /* 전체 화면 너비 */
+      z-index: 1000;
+      height: auto; /* 높이를 자동으로 조정 */
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      margin-left: 15px;
+      font-size: 16px; /* 글자 크기 조정 */
+      line-height: 1.5; /* 줄 높이 설정 */
+    }
+
+    .navbar a:hover {
+      text-decoration: underline;
+    }
+
+    .navbar .logo {
+      font-size: 20px; /* 글자 크기 조정 */
+      font-weight: bold;
+      line-height: 1.5; /* 줄 높이 설정 */
+    }
+
+    .navbar .menu {
+      display: flex;
+      gap: 20px;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      padding: 0;
+      margin: 0;
+      padding-top: 50px; /* 네비게이션바가 내용을 덮지 않도록 여백 추가 */
+    }
+
+             h1 {
+                 text-align: center;
+                 color: #333333;
+                 margin-top: 70px; /* 네비게이션 바 공간 확보 */
+                 margin-bottom: 20px;
+             }
+
+             .container {
+                 max-width: 1200px;
+                 margin: 0 auto;
+                 background: #ffffff;
+                 padding: 20px;
+                 border-radius: 10px;
+                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+             }
+
+             .form-section, .result-section {
+                 margin-bottom: 20px;
+             }
+
+             .form-container {
+                 display: flex;
+                 flex-wrap: wrap;
+                 gap: 20px;
+             }
+
+             .form-group {
+                 flex: 1 1 calc(50% - 10px);
+                 min-width: 200px;
+                 display: flex;
+                 flex-direction: column;
+             }
+
+             .form-group label {
+                 margin-bottom: 5px;
+                 font-weight: bold;
+                 color: #666;
+             }
+
+             .form-group input {
+                 padding: 10px;
+                 font-size: 16px;
+                 border: 1px solid #ccc;
+                 border-radius: 5px;
+                 box-sizing: border-box;
+             }
+
+             .form-group input:focus {
+                 outline: none;
+                 border-color: #007BFF;
+             }
+
+             .button-group {
+                 display: flex;
+                 justify-content: flex-end;
+                 gap: 10px;
+                 margin-top: 10px;
+             }
+
+             .button-group input[type="submit"] {
+                 padding: 10px 20px;
+                 font-size: 16px;
+                 color: #fff;
+                 background-color: #007BFF;
+                 border: none;
+                 border-radius: 5px;
+                 cursor: pointer;
+                 transition: background-color 0.3s;
+             }
+
+             .button-group input[type="submit"]:hover {
+                 background-color: #0056b3;
+             }
+
+             table {
+                 width: 100%;
+                 border-collapse: collapse;
+                 margin-top: 20px;
+             }
+
+             th, td {
+                 text-align: left;
+                 padding: 10px;
+                 border: 1px solid #ddd;
+             }
+
+             th {
+                 background-color: #007BFF;
+                 color: white;
+                 font-weight: bold;
+             }
+
+             tr:nth-child(even) {
+                 background-color: #f9f9f9;
+             }
+
+             tr:hover {
+                 background-color: #f1f1f1;
+             }
+
+            /* Responsive 디자인 */
+    @media (max-width: 768px) {
+      .search-button, .add-button {
+        flex: none;
+        width: 100%;
+      }
+
+      .navbar {
+        height: auto; /* 필요 시 높이 자동 조정 */
+        padding: 10px;
+        flex-direction: column;
+      }
+      .navbar .menu {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+    </style>
+    <script>
+        document.getElementById("recommend_hospital").addEventListener("submit", function () {
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function (e) {
+                const issueDescription = document.getElementById('request').value;
+                const latitude = document.getElementById('latitude').value;
+                const longitude = document.getElementById('longitude').value;
+                const address = document.getElementById('address').value;
+
+                // 이슈 설명이 비었을 경우 팝업
+                if (!issueDescription.trim()) {
+                    e.preventDefault();
+                    alert("이슈를 설명해주세요.");
+                }
+
+                // 위도/경도 또는 주소 중 하나만 입력 체크
+                if ((!latitude || !longitude) && !address) {
+                    e.preventDefault();
+                    alert("위도/경도 또는 주소 중 하나를 입력하세요.");
+                }
+                if ((latitude && longitude) && address) {
+                    e.preventDefault();
+                    alert("위도/경도와 주소를 동시에 입력할 수 없습니다.");
+                }
+            });
+        });
+
+        document.getElementById('audioForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // 기본 폼 제출 방지
+
+            var formData = new FormData(this); // FormData 객체 생성
+
+            fetch('/audio_to_text', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('파일 처리 실패');
+                }
+                return response.text(); // 응답을 텍스트로 변환
+            })
+            .then(text => {
+                // 결과 텍스트를 resultContainer에 표시
+                document.getElementById('resultContainer').innerText = text; // 결과 입력
+            })
+            .catch(error => {
+                document.getElementById('errorContainer').innerText = error.message; // 오류 메시지 표시
+            });
+        });
+    </script>
+</head>
+<body>
+<div th:replace="fragments/nav :: nav"></div>
+<h1>병원 추천 시스템</h1>
+
+<div class="container">
+    <!-- 입력 섹션 -->
+    <div class="form-section">
+        <form id="audioForm" action="audio_to_text" enctype="multipart/form-data" method="post">
+            <div class="form-container">
+                <div class="form-group">
+                    <label for="request">이슈 설명</label>
+                    <input type="file" id="audio" name="audio" accept=".mp3">
+                </div>
+            </div>
+            <div class="button-group">
+                <input type="submit" value="업로드">
+            </div>
+        </form>
+        <div id="resultContainer" style="margin-top: 10px; font-weight: bold;">
+            <p th:if="${resultText}">결과: <span th:text="${resultText}"></span></p> <!-- resultText가 있을 경우 표시 -->
+            <p th:if="${error}" style="color: red;" th:text="${error}"></p>
+        </div>
+        <form action="recommend_hospital" method="get">
+            <div class="form-container">
+                <div class="form-group">
+                    <label for="request">이슈 설명</label>
+                    <input type="text" id="request" name="request" placeholder="예: 교통사고가 났어요 머리에 피가 많이 납니다.">
+                </div>
+                <div class="form-group">
+                    <label for="latitude">위도</label>
+                    <input type="text" id="latitude" name="latitude" placeholder="예: 35.114665">
+                </div>
+                <div class="form-group">
+                    <label for="longitude">경도</label>
+                    <input type="text" id="longitude" name="longitude" placeholder="예: 129.037021">
+                </div>
+                <div class="form-group">
+                    <label for="address">주소</label>
+                    <input type="text" id="address" name="address" placeholder="예: 부산 동구 초량중로 29">
+                    <small style="color: #666;">위, 경도 또는 주소 중 하나만 입력해 주세요.</small>
+                </div>
+                <div class="form-group">
+                    <label for="number_of_hospitals">병원 수(3개 이상)</label>
+                    <input type="text" id="number_of_hospitals" name="number_of_hospitals" value="3">
+                </div>
+            </div>
+            <div class="button-group">
+                <input type="submit" value="검색">
+            </div>
+        </form>
+    </div>
+
+    <!-- 결과 섹션 -->
+    <div class="result-section">
+        <table>
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>병원 이름</th>
+                <th>주소</th>
+                <th>응급 유형</th>
+                <th>전화번호 1</th>
+                <th>전화번호 2</th>
+                <th>위도</th>
+                <th>경도</th>
+                <th>거리 (km)</th>
+                <th>예상 도착 시간</th>
+                <th>소요 시간 (분)</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="hospital, iterStat : ${hospitalList}">
+                <td th:text="${iterStat.index + 1}"></td>
+                <td th:text="${hospital.hospitalName}"></td>
+                <td th:text="${hospital.address}"></td>
+                <td th:text="${hospital.emergencyMedicalInstitutionType}"></td>
+                <td th:text="${hospital.phoneNumber1}"></td>
+                <td th:text="${hospital.phoneNumber3}"></td>
+                <td th:text="${hospital.latitude}"></td>
+                <td th:text="${hospital.longitude}"></td>
+                <td th:text="${hospital.distance} + ' km'"></td>
+                <td th:text="${hospital.arrivalTime}"></td>
+                <td th:text="${hospital.duration}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

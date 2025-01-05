@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <title>게시판</title>
+  <style>
+    .navbar {
+      background-color: #007bff;
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed; /* 화면 상단에 고정 */
+      top: 0;
+      left: 0;
+      width: 98%; /* 전체 화면 너비 */
+      z-index: 1000;
+      height: auto; /* 높이를 자동으로 조정 */
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      margin-left: 15px;
+      font-size: 16px; /* 글자 크기 조정 */
+      line-height: 1.5; /* 줄 높이 설정 */
+    }
+
+    .navbar a:hover {
+      text-decoration: underline;
+    }
+
+    .navbar .logo {
+      font-size: 20px; /* 글자 크기 조정 */
+      font-weight: bold;
+      line-height: 1.5; /* 줄 높이 설정 */
+    }
+
+    .navbar .menu {
+      display: flex;
+      gap: 20px;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      padding: 0;
+      margin: 0;
+      padding-top: 50px; /* 네비게이션바가 내용을 덮지 않도록 여백 추가 */
+    }
+
+    h1 {
+      font-size: 32px;
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .search-section {
+      background-color: #fff;
+      padding: 20px 40px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+    }
+
+    .search-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      align-items: flex-end;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group-inline {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 15px; /* 검색어 입력 부분 위 간격 추가 */
+    }
+
+    .form-group label {
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 5px;
+    }
+
+    .form-group input, .form-group select {
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: #007bff;
+    }
+
+    .radio-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .radio-group label {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+
+    .form-group-inline input[type="text"] {
+      padding: 10px 15px; /* 입력창 내부 여백 */
+      font-size: 16px; /* 글자 크기 */
+      height: 42px; /* 입력창과 버튼 높이 동일하게 설정 */
+      border: 1px solid #ccc; /* 테두리 색상 */
+      border-radius: 5px; /* 모서리 둥글게 */
+      box-sizing: border-box; /* 전체 크기 포함 */
+      flex: 2; /* 입력창의 비율 */
+    }
+
+    .form-group-inline .search-button,
+    .form-group-inline .add-button {
+      height: 42px; /* 입력창과 동일한 높이 설정 */
+      display: flex; /* 플렉스 박스 설정 */
+      align-items: center; /* 수직 중앙 정렬 */
+      justify-content: center; /* 수평 중앙 정렬 */
+      padding: 0 15px; /* 버튼 내부 여백 */
+      font-size: 16px; /* 버튼 글자 크기 */
+      border-radius: 5px; /* 모서리 둥글게 */
+    }
+
+    .search-button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      cursor: pointer;
+      text-decoration: none; /* 검색 버튼 밑줄 제거 */
+    }
+
+    .search-button:hover {
+      background-color: #218838;
+    }
+
+    .add-button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      text-decoration: none; /* 밑줄 제거 */
+    }
+
+    .add-button:hover {
+      background-color: #0056b3;
+    }
+
+    .table-container {
+        background-color: #fff; /* 흰 배경 추가 */
+        padding: 20px; /* 테이블 주위 여백 */
+        border-radius: 8px; /* 모서리 둥글게 */
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 그림자 추가 */
+        margin-top: 20px; /* 위쪽 간격 */
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    table th, table td {
+      padding: 10px;
+      text-align: left;
+      border: 1px solid #ddd;
+    }
+
+    table th {
+      background-color: #f8f9fa;
+      color: #333;
+    }
+
+    table tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    /* Responsive 디자인 */
+    @media (max-width: 768px) {
+      .search-row {
+        flex-direction: column;
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
+
+      .search-button, .add-button {
+        flex: none;
+        width: 100%;
+      }
+
+      .navbar {
+        height: auto; /* 필요 시 높이 자동 조정 */
+        padding: 10px;
+        flex-direction: column;
+      }
+      .navbar .menu {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+  </style>
+</head>
+<body>
+<div th:replace="fragments/nav :: nav"></div>
+<div class="container">
+  <h1>게시판 목록</h1>
+
+  <!-- 게시글 검색 섹션 -->
+  <div class="search-section">
+    <form id="search-form">
+      <div class="search-row">
+        <!-- 날짜 범위 선택 -->
+        <div class="form-group">
+          <label for="start-date">시작 날짜</label>
+          <input type="date" id="start-date">
+        </div>
+        <div class="form-group">
+          <label for="end-date">종료 날짜</label>
+          <input type="date" id="end-date">
+        </div>
+
+        <!-- 검색 기준 선택 -->
+        <div class="form-group">
+          <label>검색 기준</label>
+          <div class="radio-group">
+            <input type="radio" id="search-title" name="search-criteria" value="title" checked>
+            <label for="search-title">제목</label>
+            <input type="radio" id="search-author" name="search-criteria" value="author">
+            <label for="search-author">작성자</label>
+          </div>
+          <div class="form-group">
+            <label>유형별 검색</label>
+            <div class="radio-group">
+              <label for="search-suggestion">
+                <input type="radio" id="search-suggestion" name="search-type" value="suggestion"> 건의 사항
+              </label>
+              <label for="search-notice">
+                <input type="radio" id="search-notice" name="search-type" value="notice"> 공지사항
+              </label>
+              <label for="search-review">
+                <input type="radio" id="search-review" name="search-type" value="review"> 후기
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- 검색어 입력 -->
+        <div class="form-group">
+          <label for="search-keyword">검색어</label>
+          <input type="text" id="search-keyword" placeholder="검색어를 입력하세요">
+        </div>
+      </div>
+
+      <div class="form-group-inline">
+        <input type="text" id="search-keyword" placeholder="검색어를 입력하세요">
+        <button type="submit" class="search-button">검색하기</button>
+        <a href="/board/form" class="add-button" id="add-post-button">게시글 작성</a>
+      </div>
+    </form>
+  </div>
+  <!-- 게시글 목록 테이블 -->
+  <div class="table-container">
+    <table>
+      <tbody>
+      <tr th:each="item, stat : ${boardList}">
+        <!-- 동적으로 번호 생성 -->
+        <td th:text="${stat.index + 1}"></td>
+        <td th:text="${item.board.post_type}"></td>
+        <td>
+          <a th:href="@{/board/{id}(id=${item.board.board_id})}" th:text="${item.board.title}"></a>
+        </td>
+        <td th:text="${item.board.author_id}"></td>
+        <td th:text="${item.board.created_time}"></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  const apiUrl = 'http://localhost:8080/board/api'; // REST API 엔드포인트
+  const isLoggedIn = false; // 로그인 여부 확인 변수 (true: 로그인됨, false: 로그인되지 않음)
+
+<!--  // 게시글 작성 버튼 클릭 이벤트-->
+<!--  document.getElementById('add-post-button').addEventListener('click', function (event) {-->
+<!--    if (!isLoggedIn) {-->
+<!--      event.preventDefault(); // 기본 동작(페이지 이동) 방지-->
+<!--      alert('로그인이 필요합니다. 로그인 후 이용해주세요.');-->
+<!--    }-->
+<!--  });-->
+
+  // 게시글 목록 렌더링 함수
+  async function renderBoard(filters = {}) {
+      const boardList = document.getElementById('board-list');
+
+      try {
+          // API 호출로 게시글 목록 가져오기
+          const params = new URLSearchParams(filters);
+          const response = await fetch(`${apiUrl}?${params.toString()}`);
+          if (!response.ok) throw new Error('Failed to fetch board list');
+          const data = await response.json();
+
+          // 기존 Thymeleaf 데이터를 제거
+          while (boardList.firstChild) {
+              boardList.removeChild(boardList.firstChild);
+          }
+
+          if (data.length === 0) {
+              const emptyRow = document.createElement('tr');
+              const emptyCell = document.createElement('td');
+              emptyCell.colSpan = 5;
+              emptyCell.textContent = '검색 결과가 없습니다.';
+              emptyCell.style.textAlign = 'center';
+              boardList.appendChild(emptyRow);
+              return;
+          }
+
+          // API 데이터를 테이블에 추가
+          data.forEach(board => {
+              const row = document.createElement('tr');
+
+              const idCell = document.createElement('td');
+              idCell.textContent = board.board_id;
+              row.appendChild(idCell);
+
+              const typeCell = document.createElement('td');
+              typeCell.textContent = board.post_type;
+              row.appendChild(typeCell);
+
+              const titleCell = document.createElement('td');
+              const titleLink = document.createElement('a');
+              titleLink.href = `/board/${board.board_id}`;
+              titleLink.textContent = board.title;
+              titleCell.appendChild(titleLink);
+              row.appendChild(titleCell);
+
+              const authorCell = document.createElement('td');
+              authorCell.textContent = board.author_id;
+              row.appendChild(authorCell);
+
+              const dateCell = document.createElement('td');
+              dateCell.textContent = board.created_time;
+              row.appendChild(dateCell);
+
+              boardList.appendChild(row);
+          });
+      } catch (error) {
+          console.error('Error fetching board list:', error);
+      }
+  }
+
+  // 검색 폼 제출 이벤트 핸들러
+  document.getElementById('search-form').addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      const startDate = document.getElementById('start-date').value;
+      const endDate = document.getElementById('end-date').value;
+      const searchCriteria = document.querySelector('input[name="search-criteria"]:checked').value;
+      const keyword = document.getElementById('search-keyword').value.trim();
+
+      const filters = {};
+      if (startDate) filters.start_date = startDate;
+      if (endDate) filters.end_date = endDate;
+      if (keyword) {
+          if (searchCriteria === 'title') {
+              filters.title = keyword;
+          } else if (searchCriteria === 'author') {
+              filters.author = keyword;
+          }
+      }
+
+      // 필터링된 게시글 목록 렌더링
+      await renderBoard(filters);
+  });
+
+  // 초기 렌더링 (서버에서 받은 데이터 그대로 사용)
+</script>
+</body>
+</html>

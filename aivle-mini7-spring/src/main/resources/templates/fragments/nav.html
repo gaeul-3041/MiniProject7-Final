@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+</head>
+<body>
+<div th:fragment="nav">
+    <div class="navbar">
+        <div class="logo">29조</div>
+        <div class="menu">
+            <a href="/">홈</a>
+            <a href="/board">게시판</a>
+            <!-- 관리자인 경우에만 로그 메뉴 표시 -->
+            <a href="/log" th:if="${session.user != null and session.user.idType == 1}">로그</a>
+            <!-- 로그인 상태에 따라 동적으로 변경 -->
+            <div th:if="${session.user != null}">
+                <a href="/logout">로그아웃</a>
+            </div>
+            <div th:if="${session.user == null}">
+                <a href="/login">로그인</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

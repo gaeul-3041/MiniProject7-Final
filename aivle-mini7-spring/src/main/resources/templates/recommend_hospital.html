@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>병원 추천 목록</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333333;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0 auto;
+            background: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #007BFF;
+            color: white;
+            text-transform: uppercase;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        td {
+            color: #333333;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .distance, .duration {
+            font-weight: bold;
+            color: #007BFF;
+        }
+    </style>
+</head>
+<body>
+<h1>병원 추천 목록</h1>
+
+<table>
+    <thead>
+    <tr>
+        <th>#</th>
+        <th>Hospital Name</th>
+        <th>Address</th>
+        <th>Emergency Type</th>
+        <th>Phone 1</th>
+        <th>Phone 3</th>
+        <th>Latitude</th>
+        <th>Longitude</th>
+        <th>Distance (km)</th>
+        <th>ETA</th>
+        <th>Duration (m)</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- 병원 목록 반복 -->
+    <tr th:each="hospital, iterStat : ${hospitalList}">
+        <td class="center" th:text="${iterStat.index + 1}"></td>
+        <td th:text="${hospital.hospitalName}"></td>
+        <td th:text="${hospital.address}"></td>
+        <td th:text="${hospital.emergencyMedicalInstitutionType}"></td>
+        <td th:text="${hospital.phoneNumber1}"></td>
+        <td th:text="${hospital.phoneNumber3}"></td>
+        <td th:text="${hospital.latitude}"></td>
+        <td th:text="${hospital.longitude}"></td>
+        <td class="distance" th:text="${hospital.distance} + ' km'"></td>
+        <td th:text="${hospital.arrivalTime}"></td>
+        <td class="duration" th:text="${hospital.duration}"></td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

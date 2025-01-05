@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>게시글 작성</title>
+  <style>
+    .navbar {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed; /* 화면 상단에 고정 */
+    top: 0;
+    left: 0;
+    width: 98%; /* 전체 화면 너비 */
+    z-index: 1000;
+    height: auto; /* 높이를 자동으로 조정 */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .navbar a {
+    color: white;
+    text-decoration: none;
+    margin-left: 15px;
+    font-size: 16px; /* 글자 크기 조정 */
+    line-height: 1.5; /* 줄 높이 설정 */
+  }
+
+  .navbar a:hover {
+    text-decoration: underline;
+  }
+
+  .navbar .logo {
+    font-size: 20px; /* 글자 크기 조정 */
+    font-weight: bold;
+    line-height: 1.5; /* 줄 높이 설정 */
+  }
+
+  .navbar .menu {
+    display: flex;
+    gap: 20px;
+  }
+
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    padding: 0;
+    margin: 0;
+    padding-top: 50px; /* 네비게이션바가 내용을 덮지 않도록 여백 추가 */
+  }
+
+  h1 {
+      font-size: 28px;
+      text-align: center;
+      color: #444;
+      margin: 20px 0;
+  }
+
+  .container {
+      max-width: 600px;
+      margin: 30px auto;
+      background-color: #fff;
+      padding: 20px 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .form-group {
+      margin-bottom: 20px;
+  }
+
+  .form-group label {
+      display: block;
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 8px;
+  }
+
+  .form-group input, .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+  }
+
+  .form-group input:focus, .form-group textarea:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  }
+
+  .radio-group {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+  }
+
+  .radio-group input[type="radio"] {
+      margin-right: 5px;
+  }
+
+  .button-group {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+  }
+
+  .submit-button, .cancel-button {
+      padding: 12px 20px;
+      font-size: 16px;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      flex: 1;
+  }
+
+  .submit-button {
+      background-color: #007bff;
+  }
+
+  .submit-button:hover {
+      background-color: #0056b3;
+  }
+
+  .cancel-button {
+      background-color: #6c757d;
+  }
+
+  .cancel-button:hover {
+      background-color: #5a6268;
+  }
+
+  /* Responsive 디자인 */
+    @media (max-width: 768px) {
+      .search-row {
+        flex-direction: column;
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
+
+      .search-button, .add-button {
+        flex: none;
+        width: 100%;
+      }
+
+      .navbar {
+        height: auto; /* 필요 시 높이 자동 조정 */
+        padding: 10px;
+        flex-direction: column;
+      }
+      .navbar .menu {
+        flex-direction: row;
+        align-items: center;
+      }
+      /* 버튼 공통 스타일 */
+.btn {
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    padding: 8px 16px;
+    text-decoration: none;
+    text-align: center;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-right: 8px; /* 버튼 간격 */
+}
+
+/* Primary(수정) 버튼 스타일 */
+.btn-primary {
+    background-color: #007bff;
+    color: #fff;
+}
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+    }
+
+  </style>
+</head>
+<body>
+<div th:replace="fragments/nav :: nav"></div>
+
+<div class="container">
+  <h1 th:if="${board.board_id == null}">게시글 작성</h1>
+  <form th:action="${board.board_id == null ? '/board' : '/board/' + board.board_id}" th:method="post">
+  <input type="hidden" name="board_id" th:value="${board.board_id}" />
+
+  <!-- 유형 -->
+    <div class="form-group">
+      <label>유형</label>
+      <div class="radio-group">
+        <label th:if="${session.user != null and session.user.idType == 1}">
+          <input type="radio" id="post-type-notice" name="post_type" value="공지사항"
+                 th:checked="${board.post_type == '공지사항'}" required />
+          공지사항
+        </label>
+        <label>
+          <input type="radio" id="post-type-review" name="post_type" value="후기" th:checked="${board.post_type == '후기'}" />
+          후기
+        </label>
+        <label>
+          <input type="radio" id="post-type-suggestion" name="post_type" value="건의사항" th:checked="${board.post_type == '건의사항'}" />
+          건의사항
+        </label>
+      </div>
+    </div>
+
+    <!-- 제목 -->
+    <div class="form-group">
+      <label for="title">제목</label>
+      <input type="text" id="title" name="title" th:value="${board.title}" placeholder="제목을 입력하세요" required />
+    </div>
+
+    <!-- 내용 -->
+    <div class="form-group">
+      <label for="content">내용</label>
+      <textarea id="content" name="content" rows="5" placeholder="내용을 입력하세요" th:text="${board.content}" required></textarea>
+    </div>
+
+    <!-- 버튼 -->
+    <div class="button-group">
+      <button type="submit" class="submit-button">저장</button>
+      <a th:href="@{/board}" class="cancel-button">취소</a>
+    </div>
+  </form>
+</div>
+</body>
+</html>

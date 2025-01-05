@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시글 상세</title>
+    <style>
+        .navbar {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed; /* 화면 상단에 고정 */
+            top: 0;
+            left: 0;
+            width: 98%; /* 전체 화면 너비 */
+            z-index: 1000;
+            height: auto; /* 높이를 자동으로 조정 */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            }
+
+            .navbar a {
+            color: white;
+            text-decoration: none;
+            margin-left: 15px;
+            font-size: 16px; /* 글자 크기 조정 */
+            line-height: 1.5; /* 줄 높이 설정 */
+            }
+
+            .navbar a:hover {
+            text-decoration: underline;
+            }
+
+            .navbar .logo {
+            font-size: 20px; /* 글자 크기 조정 */
+            font-weight: bold;
+            line-height: 1.5; /* 줄 높이 설정 */
+            }
+
+            .navbar .menu {
+            display: flex;
+            gap: 20px;
+            }
+
+            body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 0;
+            margin: 0;
+            padding-top: 50px; /* 네비게이션바가 내용을 덮지 않도록 여백 추가 */
+            }
+
+            h1 {
+                font-size: 28px;
+                text-align: center;
+                color: #333;
+                margin-bottom: 20px;
+            }
+
+            .post-container {
+                max-width: 800px;
+                margin: 20px auto;
+                background-color: #fff;
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            }
+
+            .post-container h2 {
+                font-size: 26px;
+                color: #007bff;
+                margin-bottom: 10px;
+                display: flex;
+                align-items: center;
+                gap: 15px; /* 제목과 유형 사이 간격 */
+            }
+
+            .post-container h2 small {
+                font-size: 18px;
+                color: #555;
+            }
+
+            .post-meta {
+                font-size: 15px;
+                color: #555;
+                margin-bottom: 20px;
+            }
+
+            .post-meta span {
+                margin-right: 15px;
+            }
+
+            .post-container p {
+                font-size: 17px;
+                color: #333;
+                line-height: 1.8;
+                margin-bottom: 20px;
+            }
+
+            .back-link {
+                display: inline-block;
+                margin-top: 20px;
+                font-size: 16px;
+                color: #007bff;
+                text-decoration: none;
+            }
+
+            .back-link:hover {
+                text-decoration: underline;
+            }
+
+        /* Responsive 디자인 */
+    @media (max-width: 768px) {
+      .navbar {
+        height: auto; /* 필요 시 높이 자동 조정 */
+        padding: 10px;
+        flex-direction: column;
+      }
+      .navbar .menu {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+    </style>
+</head>
+<body>
+<div th:replace="fragments/nav :: nav"></div>
+
+<div class="post-container">
+    <h2>
+        <small th:text="'[' + ${board.post_type} + ']'"></small>
+        <span th:text="${board.title}" style="font-weight: bold;"></span>
+    </h2>
+    <div class="post-meta">
+        <span>작성자: <span th:text="${board.author_id}"></span></span>
+        <span>작성일: <span th:text="${board.created_time}"></span></span>
+    </div>
+    <p th:text="${board.content}"></p>
+
+    <!-- 수정/삭제 버튼 그룹 -->
+    <div class="button-group" th:if="${session.user != null}">
+        <!-- 관리자(idType == 1) 또는 작성자(session.user.id == board.author_id) -->
+        <a th:if="${session.user.idType == 1 or session.user.id == board.author_id}"
+           th:href="@{/board/{id}/edit(id=${board.board_id})}"
+           class="btn btn-primary">
+            수정
+        </a>
+        <form th:if="${session.user.idType == 1 or session.user.id == board.author_id}"
+              th:action="@{/board/{id}/delete(id=${board.board_id})}"
+              method="post"
+              style="display:inline;">
+            <input type="hidden" name="_method" value="delete">
+            <button type="submit" class="btn btn-danger">삭제</button>
+        </form>
+    </div>
+
+    <!-- 목록으로 돌아가기 버튼 -->
+    <a th:href="@{/board}" class="btn btn-secondary" style="margin-top: 20px;">
+        목록으로 돌아가기
+    </a>
+</div>
+
+<!-- 클라이언트에서 데이터를 동적으로 로드하는 경우 -->
+<script>
+    // URL의 쿼리 파라미터에서 id 값 추출
+    const urlParams = new URLSearchParams(window.location.search);
+    const postId = urlParams.get('id');
+
+    // 동적 데이터를 로드하는 함수
+    async function fetchPostDetail(id) {
+        const apiUrl = `http://localhost:8080/board/api/${id}`; // API URL 수정 필요
+        const postDetailContainer = document.querySelector('.post-container');
+
+        try {
+            const response = await fetch(apiUrl);
+            if (!response.ok) throw new Error('게시글을 가져오는 데 실패했습니다.');
+
+            const post = await response.json();
+            postDetailContainer.innerHTML = `
+                <h2>
+                    <span>[${post.type}]</span>
+                    <span style="font-weight: bold;">${post.title}</span>
+                </h2>
+                <div class="post-meta">
+                    <span>작성자: ${post.author}</span>
+                    <span>작성일: ${post.createdDate}</span>
+                </div>
+                <p>${post.content}</p>
+                <a href="/board" class="back-link">목록으로 돌아가기</a>
+            `;
+        } catch (error) {
+            console.error(error);
+            postDetailContainer.innerHTML = `
+                <p style="color: red;">게시글을 가져오는 데 실패했습니다.</p>
+                <a href="/board" class="back-link">목록으로 돌아가기</a>
+            `;
+        }
+    }
+
+    // 게시글 ID가 있는 경우 데이터 로드
+    if (postId) {
+        fetchPostDetail(postId);
+    }
+</script>
+</body>
+</html>
